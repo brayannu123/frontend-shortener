@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const shortenApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://e88mqe3ind.execute-api.us-east-1.amazonaws.com/dev',
+  baseURL: import.meta.env.VITE_API_URL || 'https://cdvctznvu1.execute-api.us-east-1.amazonaws.com/dev',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -10,7 +10,8 @@ const shortenApi = axios.create({
 const statsApi = axios.create({
   baseURL:
     import.meta.env.VITE_STATS_API_URL ||
-    'https://2g1p050mzf.execute-api.us-east-1.amazonaws.com/dev',
+    import.meta.env.VITE_API_URL ||
+    'https://cdvctznvu1.execute-api.us-east-1.amazonaws.com/dev',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -18,7 +19,8 @@ const statsApi = axios.create({
 
 const redirectBaseUrl =
   import.meta.env.VITE_REDIRECT_API_URL ||
-  'https://unxbca7x7a.execute-api.us-east-1.amazonaws.com/dev';
+  import.meta.env.VITE_API_URL ||
+  'https://cdvctznvu1.execute-api.us-east-1.amazonaws.com/dev';
 
 export interface ShortenResponse {
   message: string;
