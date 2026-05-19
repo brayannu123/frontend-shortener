@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const shortenApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://cdvctznvu1.execute-api.us-east-1.amazonaws.com/dev',
+  baseURL: import.meta.env.VITE_API_URL || 'https://e88mqe3ind.execute-api.us-east-1.amazonaws.com/dev',
   headers: {
     'Content-Type': 'application/json',
   },

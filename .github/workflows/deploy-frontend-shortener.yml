@@ -57,7 +57,7 @@ jobs:
       - name: Build app
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.SHORTEN_API_URL }}
+          VITE_API_URL: ${{ secrets.SHORTEN_API_URL || vars.SHORTEN_API_URL || 'https://e88mqe3ind.execute-api.us-east-1.amazonaws.com/dev' }}
           VITE_STATS_API_URL: ${{ secrets.STATS_API_URL }}
 
       - name: Terraform init
