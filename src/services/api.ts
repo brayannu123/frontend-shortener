@@ -10,8 +10,7 @@ const shortenApi = axios.create({
 const statsApi = axios.create({
   baseURL:
     import.meta.env.VITE_STATS_API_URL ||
-    import.meta.env.VITE_API_URL ||
-    'https://cdvctznvu1.execute-api.us-east-1.amazonaws.com/dev',
+    'https://2g1p050mzf.execute-api.us-east-1.amazonaws.com/dev',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -19,8 +18,7 @@ const statsApi = axios.create({
 
 const redirectBaseUrl =
   import.meta.env.VITE_REDIRECT_API_URL ||
-  import.meta.env.VITE_API_URL ||
-  'https://cdvctznvu1.execute-api.us-east-1.amazonaws.com/dev';
+  'https://unxbca7x7a.execute-api.us-east-1.amazonaws.com/dev';
 
 export interface ShortenResponse {
   message: string;
@@ -38,9 +36,27 @@ export interface UrlStatsResponse {
   filteredClicks: number;
 }
 
+export interface ResolveCodeResponse {
+  shortId: string;
+  originalUrl: string;
+  redirectUrl: string;
+}
+
 export const shortenUrl = async (url: string): Promise<ShortenResponse> => {
   const response = await shortenApi.post<ShortenResponse>('/shorten', { url });
   return response.data;
+};
+
+export const resolveCode = async (shortId: string): Promise<ResolveCodeResponse> => {
+  const redirectUrl = getRedirectUrl(shortId);
+  const response = await axios.get<{ shortId: string; originalUrl: string }>(redirectUrl, {
+    params: { resolve: 'true' },
+  });
+
+  return {
+    ...response.data,
+    redirectUrl,
+  };
 };
 
 export const getUrlStats = async (shortId: string): Promise<UrlStatsResponse> => {

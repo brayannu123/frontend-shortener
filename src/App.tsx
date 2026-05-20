@@ -1,9 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, ArrowLeft, CheckCircle2, ExternalLink, ShieldCheck } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { AlertCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
 import UrlForm from './components/UrlForm';
 import ResultCard from './components/ResultCard';
 import Loader from './components/Loader';
-import { getRedirectUrl, getUrlStats, shortenUrl, ShortenResponse } from './services/api';
+import CountdownScreen from './components/CountdownScreen';
+import { shortenUrl, ShortenResponse } from './services/api';
+import { useRedirect } from './hooks/useRedirect';
 
 const getShortCodeFromPath = () => {
   const match = window.location.pathname.match(/^\/short\/([^/?#]+)/);
@@ -11,47 +13,7 @@ const getShortCodeFromPath = () => {
 };
 
 const RedirectView: React.FC<{ shortId: string }> = ({ shortId }) => {
-  const [secondsLeft, setSecondsLeft] = useState(5);
-  const [targetUrl, setTargetUrl] = useState<string | null>(null);
-  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
-  const [status, setStatus] = useState<'loading' | 'ready' | 'missing' | 'error'>('loading');
-
-  useEffect(() => {
-    let isMounted = true;
-
-    getUrlStats(shortId)
-      .then((data) => {
-        if (!isMounted) return;
-        setTargetUrl(data.originalUrl);
-        setRedirectUrl(getRedirectUrl(shortId));
-        setStatus('ready');
-      })
-      .catch((err) => {
-        if (!isMounted) return;
-        setStatus(err.response?.status === 404 ? 'missing' : 'error');
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [shortId]);
-
-  useEffect(() => {
-    if (status !== 'ready' || !redirectUrl) return;
-
-    const countdown = window.setInterval(() => {
-      setSecondsLeft((value) => Math.max(value - 1, 0));
-    }, 1000);
-
-    const redirect = window.setTimeout(() => {
-      window.location.assign(redirectUrl);
-    }, 5000);
-
-    return () => {
-      window.clearInterval(countdown);
-      window.clearTimeout(redirect);
-    };
-  }, [status, redirectUrl]);
+  const { originalUrl, redirectUrl, secondsLeft, status } = useRedirect(shortId);
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_18%_14%,#99f6e4_0,#f8fafc_28%,#dbeafe_58%,#fff7ed_100%)] text-slate-950">
@@ -88,51 +50,8 @@ const RedirectView: React.FC<{ shortId: string }> = ({ shortId }) => {
           </div>
         )}
 
-        {status === 'ready' && targetUrl && (
-          <div className="redirect-card-3d animate-rise rounded-2xl border border-white/70 bg-white/84 p-7 shadow-2xl shadow-slate-900/15 backdrop-blur-xl">
-            <div className="flex flex-col gap-7 lg:flex-row lg:items-center">
-              <div className="countdown-orbit">
-                <div className="countdown-ring" style={{ '--progress': `${(secondsLeft / 5) * 360}deg` } as React.CSSProperties}>
-                  <div className="countdown-core">
-                    <span>{secondsLeft}</span>
-                    <small>seg</small>
-                  </div>
-                </div>
-                <div className="orbit-dot orbit-dot-one" />
-                <div className="orbit-dot orbit-dot-two" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">
-                  <CheckCircle2 className="h-4 w-4" />
-                  Enlace verificado
-                </div>
-                <h2 className="max-w-2xl text-3xl font-black tracking-normal text-slate-950 md:text-5xl">
-                  Preparando tu salto seguro
-                </h2>
-                <p className="mt-3 text-base font-semibold text-slate-700">
-                  Te llevaremos al destino en {secondsLeft} segundos.
-                </p>
-                <p className="mt-3 break-all text-sm leading-6 text-slate-600">{targetUrl}</p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <a
-                    href={redirectUrl || targetUrl}
-                    className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:brightness-105"
-                  >
-                    Abrir ahora
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                  <a
-                    href="/"
-                    className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Crear otro enlace
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
+        {status === 'ready' && originalUrl && (
+          <CountdownScreen originalUrl={originalUrl} redirectUrl={redirectUrl} secondsLeft={secondsLeft} />
         )}
 
         {(status === 'missing' || status === 'error') && (
@@ -144,7 +63,7 @@ const RedirectView: React.FC<{ shortId: string }> = ({ shortId }) => {
                   {status === 'missing' ? 'La pagina no existe' : 'No pudimos verificar el enlace'}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-amber-900">
-                  El codigo <strong>{shortId}</strong> no tiene una URL registrada o el servicio de estadisticas no respondio.
+                  El codigo <strong>{shortId}</strong> no tiene una URL registrada o el servicio de redireccion no respondio.
                 </p>
                 <a
                   href="/"

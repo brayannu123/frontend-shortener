@@ -58,7 +58,8 @@ jobs:
         run: npm run build
         env:
           VITE_API_URL: ${{ secrets.SHORTEN_API_URL || vars.SHORTEN_API_URL || 'https://e88mqe3ind.execute-api.us-east-1.amazonaws.com/dev' }}
-          VITE_STATS_API_URL: ${{ secrets.STATS_API_URL }}
+          VITE_REDIRECT_API_URL: ${{ secrets.REDIRECT_API_URL || vars.REDIRECT_API_URL || 'https://unxbca7x7a.execute-api.us-east-1.amazonaws.com/dev' }}
+          VITE_STATS_API_URL: ${{ secrets.STATS_API_URL || vars.STATS_API_URL || 'https://2g1p050mzf.execute-api.us-east-1.amazonaws.com/dev' }}
 
       - name: Terraform init
         run: terraform -chdir=terraform init
