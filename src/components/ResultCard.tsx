@@ -33,6 +33,15 @@ const ResultCard: React.FC<ResultCardProps> = ({ data }) => {
           <label className="mb-2 block text-xs font-semibold uppercase text-slate-500">Link corto</label>
           <div className="flex items-center space-x-2 rounded-lg border border-emerald-200 bg-white p-2 pl-3">
             <span className="flex-1 select-all break-all text-sm font-medium text-emerald-800">{data.shortUrl}</span>
+            <a
+              href={data.shortUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center rounded-md border border-emerald-600 bg-emerald-600 p-2.5 text-white transition-all duration-200 hover:bg-emerald-700"
+              title="Abrir enlace corto"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
             <button
               onClick={handleCopy}
               className={`flex items-center justify-center space-x-1.5 rounded-md p-2.5 text-xs font-semibold transition-all duration-200 ${
